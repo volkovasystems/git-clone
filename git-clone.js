@@ -41,23 +41,62 @@
 
 	@include:
 		{
-			"work@github.com/volkovasystems": "work"
+			"work@github.com/volkovasystems": "work",
+			"git-exists@github.com/volkovasystems": "gitExists",
+			"fs@nodejs": "fs",
+			"url@nodejs": "url"
 		}
 	@end-include
 */
-var gitClone = function gitClone( repositoryURL, callback ){
+var gitClone = function gitClone( repositoryURL, destinationDirectory, callback ){
 	/*:
 		@meta-configuration:
 			{
 				"repositoryURL:required": "string",
+				"destinationDirectory": "string",
 				"callback": "Callback"
 			}
 		@end-meta-configuration
 	*/
 
-	work( "git clone " + repositoryURL, callback );
+	if( !HTTP_PROTOCOL_PATTERN.test( url.parse( repositoryURL ).protocol ) ){
+		var error = new Error( "invalid url protocol used as repository url" );
+		console.error( error );
+		throw error;
+	}
+
+	var currentWorkingDirectory = process.cwd( );
+
+	if( GIT_CLONE_DIRECTORY_PATTERN.test( currentWorkingDirectory ) ){
+		process.chdir( "../" );
+	}
+
+	if( destinationDirectory && 
+		fs.existSync( destinationDirectory )
+		fs.statSync( destinationDirectory ).isDirectory( ) )
+	{
+		process.chdir( destinationDirectory );
+		destinationDirectory = process.cwd( );
+
+	}else{
+		console.warn( "this error is shown for warning purposes only" );
+		var error = new Error( "destination directory is invalid" );
+		console.error( error );
+		console.warn( "reverting to using the parent directory of this module as the destination directory" ); 
+	}
+
+	work( "git clone " + repositoryURL, 
+		function onCloned( ){
+			gitExists( destinationDirectory, callback );
+		} );
 };
 
+const GIT_CLONE_DIRECTORY_PATTERN = /git-clone$/;
+const HTTP_PROTOCOL_PATTERN = "/^https?:/";
+
 var work = require( "./work/work.js" );
+var gitExists = require( "./git-exists/git-exists.js" );
+var fs = require( "fs" );
+var url = require( "url" );
 
 module.exports = gitClone;
