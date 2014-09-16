@@ -36,38 +36,28 @@
 	@end-module-configuration
 
 	@module-documentation:
-
+		Git clone will do one thing only, just clone the repository using https url.
 	@end-module-documentation
 
 	@include:
 		{
-			"child_process@nodejs": "childprocess",
-			"fs@nodejs": "fs"
+			"work@github.com/volkovasystems": "work"
 		}
 	@end-include
 */
-var gitClone = function gitClone( repositoryURL, branchName ){
+var gitClone = function gitClone( repositoryURL, callback ){
 	/*:
 		@meta-configuration:
 			{
 				"repositoryURL:required": "string",
-				"branchName:optional": "string"
+				"callback": "Callback"
 			}
 		@end-meta-configuration
 	*/
 
-	var gitCloneCommand = [
-		"git"
-	]
-
-	childprocess.exec( command,
-		function onResult( error, output, errorOutput ){
-			
-			callback( error, isValid, output );
-		} );
-
+	work( "git clone " + repositoryURL, callback );
 };
 
-var childprocess = require( "child_process" );
+var work = require( "./work/work.js" );
 
 module.exports = gitClone;
