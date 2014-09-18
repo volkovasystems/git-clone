@@ -72,7 +72,7 @@ var gitClone = function gitClone( repositoryURL, destinationDirectory, callback 
 	}
 
 	if( destinationDirectory && 
-		fs.existSync( destinationDirectory )
+		fs.existsSync( destinationDirectory ) &&
 		fs.statSync( destinationDirectory ).isDirectory( ) )
 	{
 		process.chdir( destinationDirectory );
